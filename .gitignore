@@ -1,1 +1,5 @@
 **/rag-flowchart.xml
+**/.env
+**/venv/
+**/chroma_db/
+**/.DS_Store
