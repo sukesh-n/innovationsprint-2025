@@ -122,4 +122,3 @@ The critical vulnerability is the inclusion of `{{employee_account_password}}`. 
 * **No Direct Execution:** The AI model should not have capabilities to execute code, make external API calls (unless strictly controlled and audited for specific, non-sensitive functions), or modify backend systems. Its role is purely informational.
 
 By implementing these layered security measures, especially by removing sensitive data from the prompt and employing robust input/output filtering, the HR assistant will be significantly more resilient against prompt injection and data exfiltration attempts.
-```

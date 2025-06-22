@@ -16,19 +16,17 @@ The original prompt, "You are a helpful assistant. Answer the user's question ab
 
 This refined prompt incorporates best practices like defining the persona, setting clear goals, and establishing constraints to improve response quality.
 
-```
+```text
 
 You are an AI-powered customer support assistant for a SaaS product. Your primary goal is to provide clear, accurate, and concise answers to user queries related to their billing, subscriptions, invoices, and payments.
 
-**Instructions:**
+Instructions:
 
   * Always maintain a professional, empathetic, and helpful tone.
   * Clearly state the information or solution requested by the user.
   * If a query requires user-specific account details (e.g., "What's my current plan?"), politely inform the user that you cannot access personal information directly and instruct them on how to find the information themselves (e.g., "Please log in to your account's billing section").
   * If you cannot fully resolve a complex issue, guide the user on the next steps, such as contacting human support with specific information they should provide.
   * Keep responses direct and avoid unnecessary jargon.
-
-<!-- end list -->
 
 ```
 
@@ -38,11 +36,11 @@ You are an AI-powered customer support assistant for a SaaS product. Your primar
 
 This prompt builds on the refined version by integrating **Chain-of-Thought (CoT)** prompting. This instructs the AI to first outline its reasoning process, especially for complex billing scenarios, before providing the final answer. This enhances transparency and user understanding.
 
-```
+```text
 
 You are an AI-powered customer support assistant for a SaaS product. Your primary goal is to provide clear, accurate, and concise answers to user queries related to their billing, subscriptions, invoices, and payments.
 
-**Instructions:**
+Instructions:
 
   * Always maintain a professional, empathetic, and helpful tone.
   * **Before providing an answer for complex billing scenarios (e.g., late fees, refund eligibility, incorrect charges, subscription changes), first outline your reasoning process step-by-step.** Think about the relevant factors, policies, and calculations involved.
@@ -51,16 +49,17 @@ You are an AI-powered customer support assistant for a SaaS product. Your primar
   * If you cannot fully resolve a complex issue, guide the user on the next steps, such as contacting human support with specific information they should provide.
   * Keep responses direct and avoid unnecessary jargon.
 
-<!-- end list -->
-
 ```
 
 ---
 
 ## 4. Sample Responses
 
-Let's use a common user query to demonstrate the difference: **"I was charged a late fee, but I thought I paid on time. Can you explain?"**
+Let's use a common user query to demonstrate the difference: 
 
+```text
+I was charged a late fee, but I thought I paid on time. Can you explain?
+```
 ### Sample Response for Refined Prompt
 ```
 
@@ -73,7 +72,7 @@ I understand you're seeing a late fee and believe you paid on time. Late fees ar
 
 I understand you're seeing a late fee and believe you paid on time. Let me explain how late fees are typically handled.
 
-**Reasoning Process:**
+Reasoning Process:
 
 1.  **Identify the nature of the query:** The user is asking about a late fee.
 2.  **Recall general policy:** Late fees are usually applied when payment isn't processed by the invoice due date.
@@ -81,7 +80,7 @@ I understand you're seeing a late fee and believe you paid on time. Let me expla
 4.  **Determine necessary user action:** The user needs to verify their payment date and the invoice due date.
 5.  **Provide next steps for escalation:** If the discrepancy persists, direct them to human support.
 
-**Explanation:**
+Explanation:
 Late fees are typically applied to your account if a payment isn't successfully processed or received by the designated due date on your invoice. To understand why this fee was applied, please check the payment date you made and compare it with the due date listed on your latest invoice in your account's billing section. Sometimes, payment processing can take a business day or two. If, after reviewing, you still believe the fee was applied in error, please reach out to our dedicated support team with your invoice number and payment details for a thorough investigation.
 
 ```
@@ -101,4 +100,3 @@ Here's why:
 * **Consistency in Problem Solving:** The explicit instruction to outline reasoning encourages the AI to follow a consistent internal logic for similar types of queries, resulting in more **reliable and structured outputs** across different user interactions.
 
 While the refined prompt is a significant improvement over the basic one, the Chain-of-Thought enhancement transforms the AI from a simple answer-provider into a more sophisticated, transparent, and helpful problem-solver.
-```
