@@ -1,0 +1,387 @@
+{
+  "name": "Smart Gmail Agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        180
+      ],
+      "id": "f1df8630-1bab-4c1c-b865-d510520a88da",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4d774f4b-5b01-4916-b2f7-220006a2ed59",
+              "name": "customer",
+              "value": "I was charged twice for this month's subscription. Can someone review my billing?",
+              "type": "string"
+            },
+            {
+              "id": "e6fc5980-19b5-4df9-af1d-654bc8d27a80",
+              "name": "admin",
+              "value": "URGENT: Our API integration is down and affecting our production systems. We need immediate technical support to resolve this critical issue.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        180,
+        180
+      ],
+      "id": "f870fb06-1182-42d8-ac6b-5c080c0c4627",
+      "name": "Set Query"
+    },
+    {
+      "parameters": {
+        "jsCode": "const customerKeywords = ['product', 'support', 'sales', 'billing', 'feature', 'refund', 'inquiry'];\nconst adminKeywords = ['technical', 'api', 'system', 'data', 'security', 'integration'];\n\nfunction classify(queryText) {\n  const text = queryText.toLowerCase();\n  if (adminKeywords.some(k => text.includes(k))) return 'admin';\n  if (customerKeywords.some(k => text.includes(k))) return 'customer';\n  return 'unknown';\n}\n\nreturn [\n  {\n    json: {\n      query: $json.customer,\n      role: classify($json.customer),\n      originalField: 'customer'\n    }\n  },\n  {\n    json: {\n      query: $json.admin,\n      role: classify($json.admin),\n      originalField: 'admin'\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        180
+      ],
+      "id": "85992991-17bc-462e-ac99-9e3a1758a434",
+      "name": "Classify Query"
+    },
+    {
+      "parameters": {
+        "url": "https://api.escuelajs.co/api/v1/users",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -140,
+        180
+      ],
+      "id": "1591bdca-2ee3-46b7-b730-97f3bf79b068",
+      "name": "Get Users"
+    },
+    {
+      "parameters": {
+        "jsCode": "const role = $items(\"Classify Query\")[0].json.role;\nconst users = $items(\"Get Users\");\n\nconst filtered = users\n  .map(item => item.json)\n  .filter(user => user.role === role);\n\nreturn filtered.map(user => ({\n  json: {\n    email: user.email,\n    name: user.name,\n    role: user.role,\n    originalQuery: $items(\"Classify Query\")[0].json.query\n  }\n}));\n\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1580,
+        -160
+      ],
+      "id": "db1cfd99-4f31-400f-84c7-28c1fde8a4d6",
+      "name": "Filter Users by Role"
+    },
+    {
+      "parameters": {
+        "fromEmail": "sukeshtn.2@gmail.com",
+        "toEmail": "=tnsukesh16@gmail.com",
+        "subject": "=New {{ $json[\"role\"] }} Query",
+        "emailFormat": "text",
+        "text": "=Hi {{$json[\"name\"]}},\n\nWe have received your query regarding:\n\n\"{{$json[\"originalQuery\"]}}\"\n\nOur team is reviewing it and will get back to you shortly.\n\nThank you for reaching out!\n\nBest regards,\nSupport Team\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2120,
+        80
+      ],
+      "id": "601208fb-cfe0-4d87-abc0-63260c003879",
+      "name": "Send email",
+      "webhookId": "2f7b774f-6314-4f8c-b1ea-a550c6b8eaf5",
+      "credentials": {
+        "smtp": {
+          "id": "8moAjf6mdQKAm3Y2",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 2,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        740,
+        180
+      ],
+      "id": "dbfb6252-49fe-4b15-87c1-4f7be707f8b0",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        440
+      ],
+      "id": "132dc370-4740-461e-b386-f90f66a1f2fb"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "64791e07-60af-4735-a716-0df4bd4eb252",
+              "leftValue": "={{ $json.role }}",
+              "rightValue": "customer",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1300,
+        160
+      ],
+      "id": "db59db0c-8a68-4a82-96a0-b7ebb02eaa2c",
+      "name": "If-customer"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "37593675-e064-4baa-b5bd-af4e62a5e38e",
+              "leftValue": "={{$json.role}}",
+              "rightValue": "admin",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1580,
+        540
+      ],
+      "id": "5a265129-2ce9-42ff-87c6-54fd08a28dec",
+      "name": "If-admin"
+    },
+    {
+      "parameters": {
+        "jsCode": "const role = $items(\"Classify Query\")[1].json.role;\nconst users = $items(\"Get Users\");\n\nconst filtered = users\n  .map(item => item.json)\n  .filter(user => user.role === role);\n\nreturn filtered.map(user => ({\n  json: {\n    email: user.email,\n    name: user.name,\n    role: user.role,\n    originalQuery: $items(\"Classify Query\")[1].json.query\n  }\n}));\n\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1940,
+        640
+      ],
+      "id": "49139ec7-d89e-4f1c-bd56-5a21a8762d1e",
+      "name": "Filter Users by Role1"
+    },
+    {
+      "parameters": {
+        "fromEmail": "sukeshtn.2@gmail.com",
+        "toEmail": "=tnsukesh16@gmail.com",
+        "subject": "=New {{ $json[\"role\"] }} Query",
+        "emailFormat": "text",
+        "text": "=Hello {{$json[\"name\"]}},\n\n{{$json[\"originalQuery\"]}}\n\nPlease review and take appropriate action.\n\nThanks,  \nAutomated Notification System\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2120,
+        320
+      ],
+      "id": "9048be79-bd3d-411f-9a95-e509fecc3640",
+      "name": "Send email1",
+      "webhookId": "2f7b774f-6314-4f8c-b1ea-a550c6b8eaf5",
+      "credentials": {
+        "smtp": {
+          "id": "8moAjf6mdQKAm3Y2",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Query": {
+      "main": [
+        [
+          {
+            "node": "Classify Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Query": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Users": {
+      "main": [
+        [
+          {
+            "node": "Set Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Users by Role": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "If-customer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If-customer": {
+      "main": [
+        [
+          {
+            "node": "Filter Users by Role",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If-admin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If-admin": {
+      "main": [
+        [
+          {
+            "node": "Filter Users by Role1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Users by Role1": {
+      "main": [
+        [
+          {
+            "node": "Send email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "8f99630e-e01d-4193-9709-93ba468bdb33",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d4232de7c7b6037df8893bc2172e4a76218ae09adde0a643299b73bb8c9d639b"
+  },
+  "id": "d1RzLX82tgzuoSCo",
+  "tags": []
+}
