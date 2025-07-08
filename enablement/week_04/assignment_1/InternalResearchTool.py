@@ -203,7 +203,7 @@ if __name__ == "__main__":
     print("-----------------------------------\n")
 
     while True:
-        query = input("Your query: ")
+        query = input("Your query or to end chat enter 'exit' or 'quit': ")
         if query.lower() in ["exit", "quit"]:
             print("Exiting agent. Goodbye!")
             break
