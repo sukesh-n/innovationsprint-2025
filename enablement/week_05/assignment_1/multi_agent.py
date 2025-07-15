@@ -146,23 +146,39 @@ it_vectorstore = FAISS.from_documents(it_docs, embeddings)
 finance_vectorstore = FAISS.from_documents(finance_docs, embeddings)
 
 @tool
-def read_file(query: str, domain: Literal["IT", "Finance"]) -> str:
+def read_file(query: str, domain: Literal["IT", "Finance"], k_docs: int = 1) -> str:
+    """Reads relevant content from internal documents based on a query and domain.
+    Performs a similarity search against vectorized sample documents.
+
+    Args:
+        query (str): The specific question or keywords to search for in the documents.
+        domain (Literal["IT", "Finance"]): The domain of the document to search within.
+        k_docs (int): The number of relevant documents to retrieve. Defaults to 1.
+    """
     print(f"\n--- Tool Used: ReadFile ---")
-    print(f"Searching internal docs for: '{query}' in {domain} domain.")
+    print(f"Searching internal docs for: '{query}' in {domain} domain. Retrieving {k_docs} documents.")
     if domain == "IT":
-        retriever = it_vectorstore.as_retriever(search_kwargs={"k": 1})
+        retriever = it_vectorstore.as_retriever(search_kwargs={"k": k_docs})
     elif domain == "Finance":
-        retriever = finance_vectorstore.as_retriever(search_kwargs={"k": 1})
+        retriever = finance_vectorstore.as_retriever(search_kwargs={"k": k_docs})
     else:
         return "Invalid domain specified for ReadFile tool."
     relevant_docs = retriever.invoke(query)
     if relevant_docs:
-        return f"Internal Doc (from {relevant_docs[0].metadata.get('source', 'unknown')}): {relevant_docs[0].page_content}"
+        # Concatenate content of all retrieved documents
+        all_content = "\n\n".join([doc.page_content for doc in relevant_docs])
+        return f"Internal Docs (from {domain} domain):\n{all_content}"
     else:
         return f"No relevant internal document found for '{query}' in {domain} domain."
 
 @tool
 def web_search(query: str) -> str:
+    """Performs a web search for external information.
+    This is a dummy implementation for demonstration.
+
+    Args:
+        query (str): The search query for external information.
+    """
     print(f"\n--- Tool Used: WebSearch ---")
     print(f"Searching the web for: '{query}'")
     if "vpn setup" in query.lower():
@@ -206,16 +222,23 @@ def run_tool_calling_agent(state: AgentState, domain_tools: List[tool], domain_n
     print(f"\n--- {domain_name} Agent: Processing Query with Ollama and Tools ---")
     print(f"Query: '{user_query}'")
     tool_decision_prompt = ChatPromptTemplate.from_messages([
-        ("system", f"You are a helpful {domain_name} support agent. Based on the user's query, decide whether to use 'read_file' (for internal documents) or 'web_search' (for external information). If neither is suitable, just answer directly. Respond with 'USE_READ_FILE', 'USE_WEB_SEARCH', or your direct answer."),
+        ("system", f"You are a helpful {domain_name} support agent. Based on the user's query, decide whether to use 'read_file' (for internal documents) or 'web_search' (for external information). If neither is suitable, just answer directly. Respond with 'USE_READ_FILE', 'USE_WEB_SEARCH', or your direct answer. If using 'read_file', consider if more detail is needed and indicate by appending a number, e.g., 'USE_READ_FILE:3' to get 3 documents."),
         ("user", "{query}")
     ])
     tool_decision_chain = tool_decision_prompt | llm | StrOutputParser()
     decision = tool_decision_chain.invoke({"query": user_query}).strip().upper()
     response_content = ""
     tool_output = None
+    
     if "USE_READ_FILE" in decision:
         print(f"LLM decided to use read_file.")
-        tool_output = read_file(user_query, domain_name)
+        k_docs = 1 # Default to 1 document
+        if ":" in decision:
+            try:
+                k_docs = int(decision.split(":")[-1])
+            except ValueError:
+                pass # Stick to default if number is invalid
+        tool_output = read_file(user_query, domain_name, k_docs=k_docs)
     elif "USE_WEB_SEARCH" in decision:
         print(f"LLM decided to use web_search.")
         tool_output = web_search(user_query)
