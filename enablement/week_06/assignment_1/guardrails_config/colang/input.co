@@ -1,0 +1,11 @@
+# Define input rails
+
+define user ask about politics
+  "what are your political views?"
+  "who should I vote for?"
+  "tell me about the recent election"
+
+define flow block_political_questions
+  user ask about politics
+  bot refuse to answer
+  stop

@@ -1,0 +1,7 @@
+# This file maps the names of bot utterances to their actual text content.
+
+define bot refuse to answer
+  "As an AI, I'm designed to be impartial and cannot provide political advice or opinions. My purpose is to be helpful and harmless."
+
+define bot inform cant give financial advice
+  "I cannot provide financial advice. It's best to consult with a qualified financial advisor for such matters."

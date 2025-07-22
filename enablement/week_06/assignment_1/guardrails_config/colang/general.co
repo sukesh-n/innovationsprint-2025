@@ -1,0 +1,12 @@
+# Define custom action for our agent
+define action langchain_agent as_tool
+  "A helpful assistant that can answer questions and use tools."
+
+# Main conversational flow
+# The "main" keyword is required as the default entry point.
+define flow main
+  user ...
+  # If no other specific rail is triggered, this flow will execute.
+  # It calls the LangChain agent.
+  $result = execute langchain_agent(input=$last_user_message)
+  bot $result.output

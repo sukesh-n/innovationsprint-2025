@@ -1,0 +1,10 @@
+# Define output rails
+
+define bot offer financial advice
+  "you should invest in"
+  "I recommend buying stock"
+
+define flow block_financial_advice
+  bot offer financial advice
+  bot inform cant give financial advice
+  stop

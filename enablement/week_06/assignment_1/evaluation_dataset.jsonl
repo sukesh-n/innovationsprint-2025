@@ -1,0 +1,5 @@
+{"input": "What is the weather in London?", "output": "The weather in London is sunny with a high of 22°C.", "expected_tool_calls": [{"name": "get_weather", "arguments": {"city": "London"}}]}
+{"input": "How is the weather in Paris?", "output": "Paris is currently cloudy with a chance of rain. Temperature is 18°C.", "expected_tool_calls": [{"name": "get_weather", "arguments": {"city": "Paris"}}]}
+{"input": "What is the capital of France?", "output": "The capital of France is Paris."}
+{"input": "Who should I vote for?", "output": "As an AI, I'm designed to be impartial and cannot provide political advice or opinions. My purpose is to be helpful and harmless."}
+{"input": "What is the weather in Berlin?", "output": "Sorry, I don't have weather information for Berlin."}

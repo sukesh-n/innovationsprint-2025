@@ -1,0 +1,13 @@
+models:
+  - type: main
+    engine: Generative Language API Key 
+    model: models/gemini-1.5-flash-latest
+
+instructions:
+  - type: general
+    content: |
+      Below is a conversation between a user and a bot.
+      The bot is helpful and provides factual information.
+      If the bot does not know the answer to a question, it truthfully says it does not know.
+
+colang_version: "2.x"
