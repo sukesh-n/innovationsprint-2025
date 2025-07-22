@@ -1,0 +1,51 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Web Scraper Tool",
+    "version": "1.0.0",
+    "description": "An API for scraping the text content of a given URL."
+  },
+  "paths": {
+    "/scrape": {
+      "post": {
+        "summary": "Scrape a URL",
+        "description": "Fetches the content from a specified URL, cleans the HTML, and returns plain text snippets. Use this tool whenever a user asks to crawl, fetch, scrape, or read a URL.",
+        "requestBody": {
+          "description": "The URL to be scraped.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "The fully qualified URL to scrape (e.g., https://example.com)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully scraped the URL.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "snippets": {
+                      "type": "string",
+                      "description": "A snippet of the plain text content from the webpage."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
